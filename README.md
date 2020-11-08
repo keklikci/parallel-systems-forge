@@ -1,6 +1,6 @@
 # OS
---
-- proposes; 
+```bash
+proposes C++
 
-> threads with busy waiting
-> to be added...
+-- POSIX threads
+```
