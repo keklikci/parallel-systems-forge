@@ -1,6 +1,6 @@
 # os
 ```bash
-proposes C++
+proposes C++ / Java 
 
 -- POSIX threads
 -- Dining Philosophers 
