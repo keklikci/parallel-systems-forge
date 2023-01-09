@@ -44,7 +44,7 @@ class Table {
 		frame.getContentPane().setBackground(Color.WHITE);
 		BufferedImage plate = null;
 		try {
-			plate = ImageIO.read(new File("spaghetti_yellow.jpg"));
+			plate = ImageIO.read(new File("../schemas/spaghetti_yellow.jpg"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -75,7 +75,7 @@ class Table {
 		plates[4].setVisible(false);
 
 		try {
-			fork = ImageIO.read(new File("fork_white_1.jpg"));
+			fork = ImageIO.read(new File("../schemas/fork_white_1.jpg"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -85,7 +85,7 @@ class Table {
 		frame.getContentPane().add(forks[0]);
 
 		try {
-			fork = ImageIO.read(new File("fork_white_2.jpg"));
+			fork = ImageIO.read(new File("../schemas/fork_white_2.jpg"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -95,7 +95,7 @@ class Table {
 		frame.getContentPane().add(forks[1]);
 
 		try {
-			fork = ImageIO.read(new File("fork_white_3.jpg"));
+			fork = ImageIO.read(new File("../schemas/fork_white_3.jpg"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -105,7 +105,7 @@ class Table {
 		frame.getContentPane().add(forks[2]);
 
 		try {
-			fork = ImageIO.read(new File("fork_white_4.jpg"));
+			fork = ImageIO.read(new File("../schemas/fork_white_4.jpg"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -115,7 +115,7 @@ class Table {
 		frame.getContentPane().add(forks[3]);
 
 		try {
-			fork = ImageIO.read(new File("fork_white_5.jpg"));
+			fork = ImageIO.read(new File("../schemas/fork_white_5.jpg"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -134,7 +134,7 @@ class Table {
 	public void StartDining_GUI(int i)
 	{
 		try {
-			plates[i].setIcon(new ImageIcon(ImageIO.read(new File("spaghetti_white.jpg"))));
+			plates[i].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/spaghetti_white.jpg"))));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -143,7 +143,7 @@ class Table {
 	public void Hungry_GUI(int i) {
 
 		try {
-			plates[i].setIcon(new ImageIcon(ImageIO.read(new File("spaghetti_red.jpg"))));
+			plates[i].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/spaghetti_red.jpg"))));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -159,28 +159,28 @@ class Table {
 		try{
 			if (i == 0)
 			{
-				forks[0].setIcon(new ImageIcon(ImageIO.read(new File("fork_red_1.jpg"))));
-				forks[4].setIcon(new ImageIcon(ImageIO.read(new File("fork_red_5.jpg"))));
+				forks[0].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/fork_red_1.jpg"))));
+				forks[4].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/fork_red_5.jpg"))));
 			}
 			else if (i == 1)
 			{
-				forks[0].setIcon(new ImageIcon(ImageIO.read(new File("fork_red_1.jpg"))));
-				forks[1].setIcon(new ImageIcon(ImageIO.read(new File("fork_red_2.jpg"))));
+				forks[0].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/fork_red_1.jpg"))));
+				forks[1].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/fork_red_2.jpg"))));
 			}
 			else if (i == 2)
 			{
-				forks[1].setIcon(new ImageIcon(ImageIO.read(new File("fork_red_2.jpg"))));
-				forks[2].setIcon(new ImageIcon(ImageIO.read(new File("fork_red_3.jpg"))));
+				forks[1].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/fork_red_2.jpg"))));
+				forks[2].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/fork_red_3.jpg"))));
 			}
 			else if (i == 3)
 			{
-				forks[2].setIcon(new ImageIcon(ImageIO.read(new File("fork_red_3.jpg"))));
-				forks[3].setIcon(new ImageIcon(ImageIO.read(new File("fork_red_4.jpg"))));
+				forks[2].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/fork_red_3.jpg"))));
+				forks[3].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/fork_red_4.jpg"))));
 			}
 			else if (i == 4)
 			{
-				forks[3].setIcon(new ImageIcon(ImageIO.read(new File("fork_red_4.jpg"))));
-				forks[4].setIcon(new ImageIcon(ImageIO.read(new File("fork_red_5.jpg"))));
+				forks[3].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/fork_red_4.jpg"))));
+				forks[4].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/fork_red_5.jpg"))));
 			}
 		}catch (IOException e) {
 			e.printStackTrace();
@@ -190,7 +190,7 @@ class Table {
 
 	public void Eating_GUI(int i) {
 		try {
-			plates[i].setIcon(new ImageIcon(ImageIO.read(new File("spaghetti_blue.jpg"))));
+			plates[i].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/spaghetti_blue.jpg"))));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -206,28 +206,28 @@ class Table {
 		try{
 			if (i == 0)
 			{
-				forks[0].setIcon(new ImageIcon(ImageIO.read(new File("fork_white_1.jpg"))));
-				forks[4].setIcon(new ImageIcon(ImageIO.read(new File("fork_white_5.jpg"))));
+				forks[0].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/fork_white_1.jpg"))));
+				forks[4].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/fork_white_5.jpg"))));
 			}
 			else if (i == 1)
 			{
-				forks[0].setIcon(new ImageIcon(ImageIO.read(new File("fork_white_1.jpg"))));
-				forks[1].setIcon(new ImageIcon(ImageIO.read(new File("fork_white_2.jpg"))));
+				forks[0].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/fork_white_1.jpg"))));
+				forks[1].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/fork_white_2.jpg"))));
 			}
 			else if (i == 2)
 			{
-				forks[1].setIcon(new ImageIcon(ImageIO.read(new File("fork_white_2.jpg"))));
-				forks[2].setIcon(new ImageIcon(ImageIO.read(new File("fork_white_3.jpg"))));
+				forks[1].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/fork_white_2.jpg"))));
+				forks[2].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/fork_white_3.jpg"))));
 			}
 			else if (i == 3)
 			{
-				forks[2].setIcon(new ImageIcon(ImageIO.read(new File("fork_white_3.jpg"))));
-				forks[3].setIcon(new ImageIcon(ImageIO.read(new File("fork_white_4.jpg"))));
+				forks[2].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/fork_white_3.jpg"))));
+				forks[3].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/fork_white_4.jpg"))));
 			}
 			else if (i == 4)
 			{
-				forks[3].setIcon(new ImageIcon(ImageIO.read(new File("fork_white_4.jpg"))));
-				forks[4].setIcon(new ImageIcon(ImageIO.read(new File("fork_white_5.jpg"))));
+				forks[3].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/fork_white_4.jpg"))));
+				forks[4].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/fork_white_5.jpg"))));
 			}
 		}catch (IOException e) {
 			e.printStackTrace();
@@ -236,7 +236,7 @@ class Table {
 
 	public void StopEating_GUI(int i) {
 		try {
-			plates[i].setIcon(new ImageIcon(ImageIO.read(new File("spaghetti_white.jpg"))));
+			plates[i].setIcon(new ImageIcon(ImageIO.read(new File("../schemas/spaghetti_white.jpg"))));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
