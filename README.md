@@ -42,3 +42,7 @@ The `DiningSimulation` core can also be used without a graphical desktop.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for formatting, testing, and change
 guidelines.
+
+Every push to `main` and every pull request runs native builds, CTest, headless
+Java tests, formatting checks, and a separate native sanitizer job. Successful
+workflow runs retain the build directory as an artifact for inspection.

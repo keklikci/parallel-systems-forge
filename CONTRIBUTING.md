@@ -7,6 +7,9 @@ Configure an out-of-tree build and compile all native targets:
 ```sh
 cmake -S . -B build
 cmake --build build
+ctest --test-dir build --output-on-failure
+cmake --build build --target java-test
+./scripts/check-format.sh
 ```
 
 Keep generated files out of the repository. Run the relevant example locally
@@ -26,4 +29,3 @@ Use Conventional Commits with a meaningful scope, for example:
 ```text
 fix(memory-map): handle empty input files
 ```
-
