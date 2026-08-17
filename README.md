@@ -30,8 +30,13 @@ The memory manager accepts `[thread-count] [seed] [capacity]`; the seat
 reservation example accepts `[seed] [reservations-per-agency]`.
 
 The Java Dining Philosophers application is located in
-`examples/dining-philosophers/`. Its Swing interface requires a graphical
-desktop environment.
+`examples/dining-philosophers/`. Run the finite Swing simulation with:
+
+```sh
+java -cp build/java-classes Philosopher [rounds] [seed]
+```
+
+The `DiningSimulation` core can also be used without a graphical desktop.
 
 ## Development
 

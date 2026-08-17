@@ -53,7 +53,11 @@ endforeach()
 add_custom_target(java-compile
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/java-classes
     COMMAND javac -d ${CMAKE_BINARY_DIR}/java-classes
+            ${CMAKE_SOURCE_DIR}/examples/dining-philosophers/src/DiningSimulation.java
             ${CMAKE_SOURCE_DIR}/examples/dining-philosophers/src/Philosopher.java
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/examples/dining-philosophers/schemas
+            ${CMAKE_BINARY_DIR}/java-classes/schemas
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Compiling the Dining Philosophers Java example"
     VERBATIM
