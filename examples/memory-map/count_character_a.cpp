@@ -1,21 +1,25 @@
-#include <iostream>
+#include <cstdlib>
 #include <fstream>
+#include <iostream>
 
-using namespace std;
-
-int main() {
-
-    // string line;
-    ifstream filename("loremipsum.txt");
-    int counter = 0;
-    char chr;
-    while(filename >> chr) {
-        if(chr == 'a') {
-            counter++;
-        }
+int main(int argc, char **argv) {
+    if (argc < 2 || argc > 3) {
+        std::cerr << "Usage: " << argv[0] << " <input-file> [character]\n";
+        return EXIT_FAILURE;
     }
-    filename.close();
-    printf("Character 'a' occurs %d times\n", counter); 
-    // Character 'a' occurs 19082160 times
-    return 0;
+    const char target = argc == 3 ? argv[2][0] : 'a';
+    std::ifstream file(argv[1], std::ios::binary);
+    if (!file) {
+        std::cerr << "Unable to open input file: " << argv[1] << '\n';
+        return EXIT_FAILURE;
+    }
+    unsigned long long count = 0;
+    char value;
+    while (file.get(value)) if (value == target) ++count;
+    if (!file.eof()) {
+        std::cerr << "Unable to read input file: " << argv[1] << '\n';
+        return EXIT_FAILURE;
+    }
+    std::cout << "Character '" << target << "' occurs " << count << " times\n";
+    return EXIT_SUCCESS;
 }

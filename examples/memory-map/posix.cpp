@@ -1,130 +1,59 @@
-#include <iostream>
-#include <string>
-#include <pthread.h>
-#include <unistd.h>
-#include <ctime>
+#include <array>
 #include <cstdlib>
-#define FREE 0
-#define RESERVED 1
+#include <iostream>
+#include <mutex>
+#include <random>
+#include <thread>
 
-using namespace std; 
+constexpr int rows = 2;
+constexpr int columns = 50;
 
-// shared resource of threads, initially all are 0
-int seats[2][50] = {0};
-// track remaining seats, lock for busy waiting
-int rem = 100;
-int spin_lock = 0;
-
-/*
-int minBound = 1;
-int maxBound = 3;
-*/
-
-// get random row number 
-int RandomRow() {
-    return rand() % 2;
-}
-
-// get random col number 
-int RandomCol() {
-    return rand() % 50;
-}
-
-// 0 if FREE, 1 if RESERVED 
-bool CheckReservation(int row, int col) {
-    // book the seat 
-    if(seats[row][col] == FREE) {
-        return FREE;
-    } 
-    return RESERVED;
-}
-
-// prints matrix to the console when all seats are reserved 
-void printMatrix() {
-    cout << "Plane is full:\n\n"; 
-    int colsize = 50, rowsize = 2;
-    for(int row = 0; row < rowsize; row++) {
-        for(int col = 0; col < colsize; col++) {
-            cout << seats[row][col] << " ";
+class SeatReservation {
+public:
+    SeatReservation() : seats_{} {}
+    bool reserve(int agency, std::mt19937 &random) {
+        std::uniform_int_distribution<int> row(0, rows - 1);
+        std::uniform_int_distribution<int> column(0, columns - 1);
+        std::lock_guard lock(mutex_);
+        for (int attempt = 0; attempt < rows * columns; ++attempt) {
+            const int selected_row = row(random);
+            const int selected_column = column(random);
+            if (seats_[selected_row][selected_column] == 0) {
+                seats_[selected_row][selected_column] = agency;
+                return true;
+            }
         }
-        cout << "\n";
+        return false;
     }
-}
-
-// first thread besides main
-void *travelAgency_1(void *param) {
-    while(true && rem != 0) {
-        // sleep(rand() % maxBound + minBound);
-        // sleep(1);
-        while(spin_lock != 0) {}
-        cout << "Agency 1 Entered Critical Region\n";
-        int row = RandomRow();
-        int col = RandomCol();
-        // if the seat is free, reserve it 
-        if(!CheckReservation(row,col)) {
-            int *ptr = (int *) param; 
-            int seatNum;
-            if(row == 1) {
-                seatNum = col + 50;
-            }
-            else {
-                seatNum = col;
-            }
-            seats[row][col] = *ptr;
-            cout << "Seat Number " << seatNum << " is reserved by Agency 1\n";
-            rem--;
+    void print() const {
+        std::lock_guard lock(mutex_);
+        for (const auto &row : seats_) {
+            for (int seat : row) std::cout << seat << ' ';
+            std::cout << '\n';
         }
-        // cout << "Remaining Seats: " << rem << endl;
-        cout << "Agency 1 Exit Critical Region\n\n";
-        spin_lock = 1;
-    } 
-}
+    }
+private:
+    mutable std::mutex mutex_;
+    std::array<std::array<int, columns>, rows> seats_;
+};
 
-// second thread besides main
-void *travelAgency_2(void *param) {
-    while(true && rem != 0) {
-        // sleep(rand() % maxBound + minBound);
-        // sleep(1);
-        while(spin_lock != 1) {}
-        cout << "Agency 2 Entered Critical Region\n";
-        int row = RandomRow();
-        int col = RandomCol();
-        // if the seat is free, reserve it 
-        if(!CheckReservation(row,col)) {
-            int *ptr = (int *) param; 
-            int seatNum;
-            if(row == 1) {
-                seatNum = col + 50;
-            }
-            else {
-                seatNum = col;
-            }
-            seats[row][col] = *ptr;
-            cout << "Seat Number " << seatNum << " is reserved by Agency 2\n";
-            rem--;
+int main(int argc, char **argv) {
+    const unsigned seed = argc > 1 ? static_cast<unsigned>(std::strtoul(argv[1], nullptr, 10)) : 1;
+    const int reservations_per_agency = argc > 2 ? std::atoi(argv[2]) : 50;
+    if (reservations_per_agency < 0) { std::cerr << "reservation count must not be negative\n"; return EXIT_FAILURE; }
+    SeatReservation reservation;
+    auto agency = [&](int id, unsigned agency_seed) {
+        std::mt19937 random(agency_seed);
+        int completed = 0;
+        for (int attempt = 0; attempt < reservations_per_agency; ++attempt) {
+            if (reservation.reserve(id, random)) ++completed;
         }
-        // cout << "Remaining Seats: " << rem << endl;
-        cout << "Agency 2 Exit Critical Region\n\n";
-        spin_lock = 0;
-    } 
-}
-
-int main() {
-
-    // set different seeds at each execution
-    srand(time(NULL));  
-
-    pthread_t agency_1, agency_2;
-    int id1 = 1, id2 = 2;
-
-    pthread_create(&agency_1, NULL, travelAgency_1, (void*) &id1);
-    pthread_create(&agency_2, NULL, travelAgency_2, (void*) &id2);
-
-    pthread_join(agency_1, NULL);
-    pthread_join(agency_2, NULL);
-
-    cout << "No seats left\n";
-    printMatrix();
-
-    return 0;
+        std::cout << "Agency " << id << " reserved " << completed << " seats\n";
+    };
+    std::thread first(agency, 1, seed);
+    std::thread second(agency, 2, seed + 1);
+    first.join();
+    second.join();
+    reservation.print();
+    return EXIT_SUCCESS;
 }

@@ -1,38 +1,32 @@
-#include <stdio.h>
-#include <sys/mman.h>
-#include <stdlib.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
-int main(){
-    int fd = open ("loremipsum.txt", O_RDONLY); /* Open the file for reading. */
-    struct stat s;
-    int counter = 0;
-    size_t size;
-    int status = fstat(fd, &s);
-    size = s.st_size;
-
-    char *ptr = mmap(0,size,
-            PROT_READ,MAP_PRIVATE,
-            fd,0);
-    if(ptr == MAP_FAILED){
-        printf("Mapping Failed\n");
-        return 1;
+int main(int argc, char **argv) {
+    if (argc < 2 || argc > 3) {
+        fprintf(stderr, "Usage: %s <input-file> [character]\n", argv[0]);
+        return EXIT_FAILURE;
     }
+    const unsigned char target = (unsigned char)(argc == 3 ? argv[2][0] : 'a');
+    const int fd = open(argv[1], O_RDONLY);
+    if (fd == -1) { perror(argv[1]); return EXIT_FAILURE; }
+    struct stat info;
+    if (fstat(fd, &info) == -1) { perror("fstat"); close(fd); return EXIT_FAILURE; }
+    if (info.st_size == 0) {
+        close(fd);
+        printf("Character '%c' occurs 0 times\n", target);
+        return EXIT_SUCCESS;
+    }
+    const size_t size = (size_t)info.st_size;
+    const unsigned char *contents = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
+    if (contents == MAP_FAILED) { perror("mmap"); close(fd); return EXIT_FAILURE; }
     close(fd);
-    int i;
-    for(i = 0; i < size; i++) {
-        if(ptr[i] == 'a') {
-            counter += 1;
-        }
-    }
-    status = munmap(ptr, size);
-    if(status != 0){
-        printf("Unmapping Failed\n");
-        return 1;
-    }
-    printf("Character 'a' occurs %d times\n", counter); 
-    // Character 'a' occurs 19082160 times
-    return 0;
+    unsigned long long count = 0;
+    for (size_t index = 0; index < size; ++index) if (contents[index] == target) ++count;
+    if (munmap((void *)contents, size) == -1) { perror("munmap"); return EXIT_FAILURE; }
+    printf("Character '%c' occurs %llu times\n", target, count);
+    return EXIT_SUCCESS;
 }

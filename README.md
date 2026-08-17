@@ -24,9 +24,10 @@ written to `build/java-classes`.
 
 ## Examples
 
-The native examples are located in `examples/memory-map/`. The character
-counter programs currently use the input file expected by their original
-examples; their command-line interface will be standardized in a later phase.
+The native examples are located in `examples/memory-map/`. Each character
+counter accepts `<input-file> [character]` and defaults to counting `a`.
+The memory manager accepts `[thread-count] [seed] [capacity]`; the seat
+reservation example accepts `[seed] [reservations-per-agency]`.
 
 The Java Dining Philosophers application is located in
 `examples/dining-philosophers/`. Its Swing interface requires a graphical
@@ -36,4 +37,3 @@ desktop environment.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for formatting, testing, and change
 guidelines.
-

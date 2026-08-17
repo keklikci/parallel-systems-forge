@@ -1,164 +1,90 @@
+#include <algorithm>
+#include <condition_variable>
+#include <cstdlib>
 #include <iostream>
-#include <pthread.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <string>
-#include <stdlib.h> 
-#include <string>
-#include <queue> 
-#include <semaphore.h>
-#include <assert.h>
-using namespace std;
+#include <mutex>
+#include <queue>
+#include <random>
+#include <thread>
+#include <vector>
 
-#define NUM_THREADS 10
-#define MEMORY_SIZE 150
+struct Request { int thread_id; std::size_t size; };
 
-struct node
-{
-	int id;
-	int size;
+class MemoryManager {
+public:
+    explicit MemoryManager(std::size_t capacity) : memory_(capacity, '.'), next_offset_(0), stopping_(false) {}
+    void start() { server_ = std::thread(&MemoryManager::serve, this); }
+    void stop() {
+        { std::lock_guard lock(mutex_); stopping_ = true; }
+        condition_.notify_one();
+        server_.join();
+    }
+    int allocate(int thread_id, std::size_t size) {
+        std::unique_lock lock(mutex_);
+        requests_.push({thread_id, size});
+        replies_.resize(std::max(replies_.size(), static_cast<std::size_t>(thread_id + 1)), -2);
+        condition_.notify_one();
+        reply_condition_.wait(lock, [&] { return replies_[thread_id] != -2; });
+        const int offset = replies_[thread_id];
+        replies_[thread_id] = -2;
+        return offset;
+    }
+    void write(int offset, int thread_id, std::size_t size) {
+        std::lock_guard lock(mutex_);
+        if (offset >= 0) for (std::size_t i = 0; i < size; ++i) memory_[offset + i] = char('0' + thread_id);
+    }
+    void dump() const {
+        for (std::size_t i = 0; i < memory_.size(); ++i) {
+            if (i % 30 == 0) std::cout << '\n';
+            std::cout << memory_[i] << ' ';
+        }
+        std::cout << '\n';
+    }
+private:
+    void serve() {
+        for (;;) {
+            std::unique_lock lock(mutex_);
+            condition_.wait(lock, [&] { return stopping_ || !requests_.empty(); });
+            if (requests_.empty() && stopping_) return;
+            const Request request = requests_.front(); requests_.pop();
+            int offset = -1;
+            if (next_offset_ + request.size <= memory_.size()) {
+                offset = static_cast<int>(next_offset_); next_offset_ += request.size;
+            }
+            replies_[request.thread_id] = offset;
+            reply_condition_.notify_all();
+        }
+    }
+    mutable std::mutex mutex_;
+    std::condition_variable condition_;
+    std::queue<Request> requests_;
+    std::vector<char> memory_;
+    std::vector<int> replies_;
+    std::condition_variable reply_condition_;
+    std::size_t next_offset_;
+    bool stopping_;
+    std::thread server_;
 };
 
-
-queue<node> myqueue; // shared que
-pthread_mutex_t sharedLock = PTHREAD_MUTEX_INITIALIZER; // mutex
-pthread_t server; // server thread handle
-sem_t semlist[NUM_THREADS]; // thread semaphores
-
-int thread_message[NUM_THREADS]; // thread memory information
-char  memory[MEMORY_SIZE]; // memory size
-
-
-
-
-
-void my_malloc(int thread_id, int size)
-{
-	//This function will add the struct to the queue
-	// pthread_mutex_lock(&sharedLock); 
-	node info;
-	info.id = thread_id;
-	info.size = size;
-	myqueue.push(info);
-	// pthread_mutex_unlock(&sharedLock); 
-}
-
-void * server_function(void *)
-{
-	//This function should grant or decline a thread depending on memory size.
-	int accum_memory = 0;
-	static int rem_memory = MEMORY_SIZE; // track remaining memory 
-	// loop continously 
-	while(true) {
-		// pthread_mutex_lock(&sharedLock);
-		if(myqueue.empty() == false) {
-			node info = myqueue.front();
-			myqueue.pop();
-			int thread_ID = info.id;
-			// grant or deny request 
-			if(info.size <= rem_memory) {
-				// start point of memory location
-				thread_message[thread_ID] = accum_memory;
-				accum_memory += info.size; // update accumulated 
-				rem_memory = MEMORY_SIZE - accum_memory; // track remaining
-			}
-			// insufficient memory 
-			else {
-				thread_message[thread_ID] = -1;
-			}
-			pthread_mutex_unlock(&sharedLock);
-			sem_post(&semlist[thread_ID]); // unblocks the semaphore for the requesting thread
-		}
-		pthread_mutex_unlock(&sharedLock);
-	}
-}
-
-void * thread_function(void * id) 
-{
-	//This function will create a random size, and call my_malloc
-	//Block
-	int *thread_ID = (int*) id;
-	int random_size = rand() % (MEMORY_SIZE / 6) + 1;
-	pthread_mutex_lock(&sharedLock); 
-	my_malloc(*thread_ID, random_size);
-	pthread_mutex_unlock(&sharedLock); 
-	// decrements the semaphore for that thread 
-	sem_wait(&semlist[*thread_ID]); 
-	pthread_mutex_lock(&sharedLock);
-	if(thread_message[*thread_ID] == -1) {
-		// cout << "Insufficient Memory for Thread " + to_string(*thread_ID) + "...";
-		printf("Thread %d: Not enough memory\n", (*thread_ID));
-	}
-	else {
-		// allocate all of them to the thread ID after casting
-		for(int i=0; i<random_size; i++) {
-			memory[thread_message[*thread_ID]+i] = '0' + static_cast<char>(*thread_ID);
-		}
-	}
-	pthread_mutex_unlock(&sharedLock);
-}
-
-void init()	 
-{
-	pthread_mutex_lock(&sharedLock);	//lock
-	for(int i = 0; i < NUM_THREADS; i++) //initialize semaphores
-	{sem_init(&semlist[i],0,0);}
-	for (int i = 0; i < MEMORY_SIZE; i++)	//initialize memory 
-  	{char zero = '0'; memory[i] = zero;}
-   	int server_create = pthread_create(&server,NULL,server_function,NULL); //start server 
-	assert(server_create == 0);
-	pthread_mutex_unlock(&sharedLock); //unlock
-}
-
-
-
-void dump_memory() 
-{
-// You need to print the whole memory array here.
-printf("\nMemory Array - (5,30 matrix format):");
-for(int mem=0; mem<MEMORY_SIZE; mem++) {
-	if(mem % 30 == 0) {cout << endl;} // print in (5*30) matrix format 
-	cout << memory[mem] << " "; 
-}
-}
-
-int main (int argc, char *argv[])
-{
-
- 	//You need to create a thread ID array here
-	int thread_IDS[NUM_THREADS];
-	int init_ID = 0;
-	while(init_ID != NUM_THREADS) {
-		thread_IDS[init_ID] = init_ID;
-		init_ID ++;
-	}
-
- 	init();	// call init
-
- 	//You need to create threads with using thread ID array, using pthread_create()
-	pthread_t threads[NUM_THREADS];
-	init_ID = 0; 
-	while(init_ID != NUM_THREADS) {
-		int success_thread_create = pthread_create(&threads[init_ID], NULL, thread_function, (void*) &thread_IDS[init_ID]);
-		assert(success_thread_create == 0);
-		init_ID++;
-	}
-
- 	//You need to join the threads
-	init_ID = 0;
-	while(init_ID != NUM_THREADS) {
-		int thread_success = pthread_join(threads[init_ID], NULL);
-		assert(thread_success == 0);
-		init_ID++;
-	}
-
- 	dump_memory(); // this will print out the memory
- 	
- 	printf("\nMemory Indexes:\n" );
- 	for (int i = 0; i < NUM_THREADS; i++)
- 	{
- 		printf("[%d]" ,thread_message[i]); // this will print out the memory indexes
- 	}
- 	printf("\nTerminating...\n");
-	return 0;
+int main(int argc, char **argv) {
+    const int thread_count = argc > 1 ? std::atoi(argv[1]) : 10;
+    const unsigned seed = argc > 2 ? static_cast<unsigned>(std::strtoul(argv[2], nullptr, 10)) : 1;
+    const std::size_t capacity = argc > 3 ? static_cast<std::size_t>(std::strtoul(argv[3], nullptr, 10)) : 150;
+    if (thread_count <= 0) { std::cerr << "thread count must be positive\n"; return EXIT_FAILURE; }
+    if (capacity == 0) { std::cerr << "capacity must be positive\n"; return EXIT_FAILURE; }
+    MemoryManager manager(capacity); manager.start();
+    std::mt19937 random(seed);
+    std::vector<std::size_t> sizes;
+    std::uniform_int_distribution<int> size_distribution(1, 25);
+    for (int id = 0; id < thread_count; ++id) sizes.push_back(static_cast<std::size_t>(size_distribution(random)));
+    std::vector<std::thread> workers;
+    for (int id = 0; id < thread_count; ++id) workers.emplace_back([&, id] {
+        const std::size_t size = sizes[id];
+        const int offset = manager.allocate(id, size);
+        if (offset < 0) std::cout << "Thread " << id << ": Not enough memory\n";
+        manager.write(offset, id, size);
+    });
+    for (auto &worker : workers) worker.join();
+    manager.stop(); manager.dump();
+    return EXIT_SUCCESS;
 }
