@@ -15,7 +15,9 @@ int main(int argc, char **argv) {
     }
     unsigned long long count = 0;
     char value;
-    while (file.get(value)) if (value == target) ++count;
+    while (file.get(value))
+        if (value == target)
+            ++count;
     if (!file.eof()) {
         std::cerr << "Unable to read input file: " << argv[1] << '\n';
         return EXIT_FAILURE;

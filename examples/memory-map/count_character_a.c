@@ -15,7 +15,8 @@ int main(int argc, char **argv) {
     unsigned long long count = 0;
     int value;
     while ((value = fgetc(file)) != EOF) {
-        if ((unsigned char)value == target) ++count;
+        if ((unsigned char)value == target)
+            ++count;
     }
     if (ferror(file) != 0 || fclose(file) != 0) {
         perror("reading input file");
