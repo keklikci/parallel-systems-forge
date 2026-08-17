@@ -1,8 +1,8 @@
-# Operating Systems Examples
+# Parallel Systems Forge
 
-A collection of portable systems-programming examples covering file processing,
-memory mapping, thread coordination, bounded allocation, and the Dining
-Philosophers problem.
+A practical collection of portable systems-programming experiments covering
+file processing, memory mapping, thread coordination, bounded allocation, and
+the Dining Philosophers problem.
 
 ## Requirements
 

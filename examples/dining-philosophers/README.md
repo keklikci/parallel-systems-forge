@@ -1,4 +1,4 @@
-# Dining Philosophers
+# Dining Philosophers in Parallel Systems Forge
 
 This example demonstrates coordinated access to shared fork resources through
 a finite, deterministic simulation and an optional Swing frontend.

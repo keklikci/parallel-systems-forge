@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(operating_systems_examples
+project(parallel_systems_forge
     VERSION 1.0.0
-    DESCRIPTION "Portable operating-systems programming examples"
+    DESCRIPTION "Portable parallel-systems programming examples"
     LANGUAGES C CXX
 )
 

@@ -1,4 +1,4 @@
-# Contributing
+# Contributing to Parallel Systems Forge
 
 ## Development workflow
 
