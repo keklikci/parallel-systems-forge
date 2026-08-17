@@ -62,3 +62,28 @@ add_custom_target(java-compile
     COMMENT "Compiling the Dining Philosophers Java example"
     VERBATIM
 )
+
+add_custom_target(java-test
+    DEPENDS java-compile
+    COMMAND javac -cp ${CMAKE_BINARY_DIR}/java-classes
+            -d ${CMAKE_BINARY_DIR}/java-classes
+            ${CMAKE_SOURCE_DIR}/tests/java/DiningSimulationTest.java
+    COMMAND java -Djava.awt.headless=true
+            -cp ${CMAKE_BINARY_DIR}/java-classes DiningSimulationTest
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Running headless Dining Philosophers tests"
+    VERBATIM
+)
+
+if(BUILD_TESTING)
+    add_test(NAME count_character_c
+        COMMAND count-character-a ${CMAKE_SOURCE_DIR}/examples/memory-map/fixture.txt)
+    add_test(NAME count_character_cpp
+        COMMAND count-character-a-cpp ${CMAKE_SOURCE_DIR}/examples/memory-map/fixture.txt)
+    add_test(NAME count_character_mmap
+        COMMAND count-character-a-mmap ${CMAKE_SOURCE_DIR}/examples/memory-map/fixture.txt)
+    add_test(NAME count_character_custom
+        COMMAND count-character-a ${CMAKE_SOURCE_DIR}/examples/memory-map/fixture.txt e)
+    add_test(NAME memory_manager_smoke COMMAND memory-management-api 10 7 50)
+    add_test(NAME seat_reservation_smoke COMMAND seat-reservation 7 50)
+endif()
