@@ -1,0 +1,27 @@
+# Native build output
+/build/
+/cmake-build-*/
+**/build/
+**/out/
+*.o
+*.obj
+*.a
+*.so
+*.dylib
+*.exe
+
+# Java build output
+*.class
+*.jar
+
+# IDE and operating-system files
+.idea/
+*.iml
+.classpath
+.project
+.DS_Store
+
+# Local test and benchmark data
+*.log
+*.tmp
+
